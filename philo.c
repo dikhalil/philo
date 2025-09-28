@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:20:17 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/27 14:55:13 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/09/28 14:14:32 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,12 @@ long get_time_ms()
 int is_number(char *str)
 {
     int i = 0;
-    if (str[0] == '+' || str[0] == '-')
+    if (!str || !str[i])
+        return (0);
+    if (str[i]== '+' || str[i]== '-')
         i++;
+    if (!str[i])
+        return (0);
     while (str[i])
     {
         if (str[i] < '0' || str[i] > '9')
@@ -40,9 +44,9 @@ long ft_atol(char *str)
     
     while (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
         i++;
-    if (str[0] == '-' || str[0] == '+')
+    if (str[i] == '-' || str[i] == '+')
     {
-        if (str[0] == '-')
+        if (str[i] == '-')
             sign = -1;
         i++;
     }
@@ -77,7 +81,7 @@ int check_data(t_data *data)
         return (1);
     if (data->time_to_die < 0 || data->time_to_eat < 0 || data->time_to_sleep < 0)
         return (1);
-    if (data->num_of_meals == 0 || data->num_of_meals < -1)
+    if (data->num_of_meals < -1 || data->num_of_meals == 0 )
         return (1);
     return (0);
 }
@@ -103,11 +107,22 @@ int init_data(int ac, char **av, t_data *data)
     while (i < data->num_of_philos)
     {
         if (pthread_mutex_init(&data->forks[i], NULL))
-            return (!free_data(data, i, 0));
+        {
+            free_data(data, i, 0, 0);
+            return (1);
+        }
         i++;
     }
     if (pthread_mutex_init(&data->print_lock, NULL))
-        return (!free_data(data, i, 0));
+    {
+        free_data(data, i, 0, 0);
+        return (1);
+    }
+    if (pthread_mutex_init(&data->data_lock, NULL))
+    {
+        free_data(data, i, 1, 0);
+        return (1);
+    }
     return (check_data(data));
 }
 
@@ -148,6 +163,13 @@ void take_rightfork(t_philo *philo)
 }
 void eating(t_philo *philo)
 {
+    if (philo->data->num_of_philos == 1)
+    {
+        take_leftfork(philo);
+        usleep(philo->data->time_to_die * 1000);
+        pthread_mutex_unlock(&philo->data->forks[philo->left_fork]);
+        return ;
+    }
     if (philo->id % 2 == 0)
     {
         take_leftfork(philo);
@@ -158,9 +180,11 @@ void eating(t_philo *philo)
         take_rightfork(philo);
         take_leftfork(philo);
     }
-    print_status(philo, current_time_ms(philo->data), "is eating");
+    pthread_mutex_lock(&philo->data->data_lock);
     philo->meals_count++;
     philo->last_meal = get_time_ms();
+    pthread_mutex_unlock(&philo->data->data_lock);
+    print_status(philo, current_time_ms(philo->data), "is eating");
     usleep(philo->data->time_to_eat * 1000);
     pthread_mutex_unlock(&philo->data->forks[philo->left_fork]);
     pthread_mutex_unlock(&philo->data->forks[philo->right_fork]);
@@ -177,8 +201,15 @@ void *philo_routine(void *arg)
     t_philo *philo;
 
     philo = (t_philo *)arg;
-    while (!philo->data->stop)
+    while (1)
     {
+        pthread_mutex_lock(&philo->data->data_lock);
+        if (philo->data->stop)
+        {
+            pthread_mutex_unlock(&philo->data->data_lock);
+            break;
+        }
+        pthread_mutex_unlock(&philo->data->data_lock);
         thinking(philo);
         eating(philo);
         sleeping(philo);
@@ -219,12 +250,17 @@ int all_finished(t_philo *philos)
     int i;
 
     i = 0;
+    pthread_mutex_lock(&philos->data->data_lock);
     while (i < philos[0].data->num_of_philos)
     {
         if (philos[i].meals_count < philos[i].data->num_of_meals)
+        {
+            pthread_mutex_unlock(&philos->data->data_lock);
             return (0);
+        }
         i++;
     }
+    pthread_mutex_unlock(&philos->data->data_lock);
     return (1);
 }
 void monitor_philos(t_philo *philos)
@@ -234,19 +270,22 @@ void monitor_philos(t_philo *philos)
     i = 0;
     while (i < philos[0].data->num_of_philos)
     {
+        pthread_mutex_lock(&philos->data->data_lock);
         if ((get_time_ms() - philos[i].last_meal) > philos[0].data->time_to_die)
         {
             philos[i].data->stop = 1;
+            pthread_mutex_unlock(&philos->data->data_lock);
             print_status(&philos[i], current_time_ms(philos->data), "died");
             return ;
         }
+        pthread_mutex_unlock(&philos->data->data_lock);
         i++;
     }
     if (philos[0].data->num_of_meals != -1 && all_finished(philos))
     {   
+        pthread_mutex_lock(&philos->data->data_lock);
         philos[0].data->stop = 1;
-        print_status(&philos[0], current_time_ms(philos[0].data),
-             "All philosophers have finished their meals");
+        pthread_mutex_unlock(&philos->data->data_lock);
         return ;
     }
     usleep(100);
@@ -266,7 +305,7 @@ int end_philo(t_philo *philos, int philo_count)
     return (status);
 }
 
-int free_data(t_data *data, int mutex_count, int print_lock)
+int free_data(t_data *data, int mutex_count, int print_lock, int data_lock)
 {
     int i;
 
@@ -281,16 +320,16 @@ int free_data(t_data *data, int mutex_count, int print_lock)
     if (print_lock)
         if (pthread_mutex_destroy(&data->print_lock))
             return (1);
+    if (data_lock)
+        if (pthread_mutex_destroy(&data->data_lock))
+            return (1);
     return (0);
 }
 
 void exit_program(t_data *data, t_philo *philos, char *msg, int status)
 {
-    int i;
-    
-    i = 0;
     if (data)
-        if (free_data(data, data->num_of_philos, 1))
+        if (free_data(data, data->num_of_philos, 1, 1))
         {
             printf("Error: Mutex destroy failed\n");
             status = 1;

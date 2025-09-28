@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/25 19:42:05 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/09/28 13:15:28 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ typedef stuct s_data
     int start_time;
     int stop;
     mutex_t *forks;
+    pthread_mutex_t data_lock;
     mutex_t print_lock;
 }               t_data;
 
