@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/28 13:15:28 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/09/28 20:11:14 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 # include <string.h>
 # include <limits.h>
 
-typedef stuct s_data
+typedef struct s_data
 {
     int num_of_philos;
     int time_to_die;
@@ -30,9 +30,9 @@ typedef stuct s_data
     int num_of_meals;
     int start_time;
     int stop;
-    mutex_t *forks;
+    pthread_mutex_t *forks;
     pthread_mutex_t data_lock;
-    mutex_t print_lock;
+    pthread_mutex_t print_lock;
 }               t_data;
 
 typedef struct s_philo
@@ -45,6 +45,36 @@ typedef struct s_philo
     struct s_data *data;
     pthread_t thread;
 }               t_philo;
+
+/*---------- check ----------*/
+int check_args(int ac, char **av);
+int check_data(t_data *data);
+int all_finished(t_philo *philos);
+int	ft_strncmp(const char *s1, const char *s2, size_t n);
+
+/*---------- initialize ----------*/
+int init_data(int ac, char **av, t_data *data);
+int create_philos(t_data *data, t_philo **philos);
+
+/*---------- threads ----------*/
+int   start_philo(t_philo *philos);
+int end_philo(t_philo *philos, int philo_count);
+void monitor_philos(t_philo *philos);
+
+/*---------- mutexs ----------*/
+int init_mutex(t_data *data);
+void print_status(t_philo *philo, long current_time_ms, char *status);
+
+/*---------- routine ----------*/
+void *philo_routine(void *arg);
+
+/*---------- time ----------*/
+long get_time_ms();
+long current_time_ms(t_data *data);
+
+/*---------- exit ----------*/
+int free_data(t_data *data, int mutex_count, int print_lock, int data_lock);
+void exit_program(t_data *data, t_philo *philos, char *msg, int status);
 
 #endif
 
