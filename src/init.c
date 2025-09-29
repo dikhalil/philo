@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   initialize.c                                       :+:      :+:    :+:   */
+/*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:11:23 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/28 19:48:59 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/09/29 13:29:58 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ int	init_data(int ac, char **av, t_data *data)
 		data->num_of_meals = atoi(av[5]);
 	else
 		data->num_of_meals = -1;
-	data->start_time = get_time_ms();
+	data->start_time = 0;
 	data->stop = 0;
 	data->forks = malloc(sizeof(pthread_mutex_t) * data->num_of_philos);
 	if (!data->forks)

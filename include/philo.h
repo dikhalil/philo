@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/28 20:36:48 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/09/29 15:26:11 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ typedef struct s_data
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				num_of_meals;
-	int				start_time;
+	long				start_time;
 	int				stop;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	data_lock;
@@ -59,6 +59,7 @@ int					create_philos(t_data *data, t_philo **philos);
 int					start_philo(t_philo *philos);
 int					end_philo(t_philo *philos, int philo_count);
 void				monitor_philos(t_philo *philos);
+int	all_finished(t_philo *philos);
 
 /*---------- mutexs ----------*/
 int					init_mutex(t_data *data);
@@ -71,6 +72,7 @@ void				*philo_routine(void *arg);
 /*---------- time ----------*/
 long				get_time_ms(void);
 long				current_time_ms(t_data *data);
+void 				custom_usleep(t_philo *philo, long timemc);
 
 /*---------- exit ----------*/
 int					free_data(t_data *data, int mutex_count, int print_lock,

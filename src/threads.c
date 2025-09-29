@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:26:32 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/28 20:36:42 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/09/29 15:25:57 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int	create_philos(t_data *data, t_philo **philos)
 		(*philos)[i].meals_count = 0;
 		(*philos)[i].left_fork = i;
 		(*philos)[i].right_fork = (i + 1) % data->num_of_philos;
-		(*philos)[i].last_meal = get_time_ms();
+		(*philos)[i].last_meal = 0;
 		(*philos)[i].data = data;
 		i++;
 	}
@@ -38,10 +38,22 @@ int	start_philo(t_philo *philos)
 	int	i;
 
 	i = 0;
+	pthread_mutex_lock(&philos[0].data->data_lock);
+	philos[0].data->start_time = get_time_ms();
+	while (i < philos[0].data->num_of_philos)
+	{
+		philos[i].last_meal = philos[0].data->start_time;
+		i++;
+	}
+	pthread_mutex_unlock(&philos[0].data->data_lock);
+	i = 0;
 	while (i < philos[0].data->num_of_philos)
 	{
 		if (pthread_create(&philos[i].thread, NULL, philo_routine, &philos[i]))
 		{
+			pthread_mutex_lock(&philos[0].data->data_lock);
+			philos[0].data->stop = 1;
+			pthread_mutex_unlock(&philos[0].data->data_lock);
 			end_philo(philos, i);
 			return (1);
 		}
@@ -57,15 +69,16 @@ int	end_philo(t_philo *philos, int philo_count)
 	status = 0;
 	if (philo_count != philos[0].data->num_of_philos)
 		status = 1;
-	while (philo_count--)
+	while (philo_count > 0)
 	{
+		philo_count--;
 		if (pthread_join(philos[philo_count].thread, NULL))
 			return (1);
 	}
 	return (status);
 }
 
-static int	all_finished(t_philo *philos)
+ int	all_finished(t_philo *philos)
 {
 	int	i;
 
@@ -87,12 +100,14 @@ static int	all_finished(t_philo *philos)
 void	monitor_philos(t_philo *philos)
 {
 	int	i;
+	long since_last_meal;
 
 	i = 0;
 	while (i < philos[0].data->num_of_philos)
 	{
 		pthread_mutex_lock(&philos->data->data_lock);
-		if ((get_time_ms() - philos[i].last_meal) > philos[0].data->time_to_die)
+		since_last_meal = get_time_ms() - philos[i].last_meal;
+		if (since_last_meal > philos[0].data->time_to_die)
 		{
 			philos[i].data->stop = 1;
 			pthread_mutex_unlock(&philos->data->data_lock);
