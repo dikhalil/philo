@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:09:47 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/28 20:36:58 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/09/30 19:06:30 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,10 @@ int	check_data(t_data *data)
 	if (data->time_to_die < 0 || data->time_to_eat < 0
 		|| data->time_to_sleep < 0)
 		return (1);
-	if (data->num_of_meals < -1 || data->num_of_meals == 0)
+	if (data->num_of_meals < -1)
 		return (1);
+	if (data->num_of_meals == 0)
+		exit_program(data, NULL, NULL, 0);
 	return (0);
 }
 

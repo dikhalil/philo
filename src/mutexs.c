@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:28:04 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/29 15:19:57 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/09/30 17:17:27 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,12 +41,10 @@ int	init_mutex(t_data *data)
 
 void	print_status(t_philo *philo, long current_time_ms, char *status)
 {
-	pthread_mutex_lock(&philo->data->data_lock);
-	if (!philo->data->stop || !ft_strncmp("died", status, 4))
+	if (!is_simulation_stoped(philo) || !ft_strncmp("died", status, 4))
 	{
 	    pthread_mutex_lock(&philo->data->print_lock);
 	    printf("%ld %d %s\n", current_time_ms, philo->id, status);
 	    pthread_mutex_unlock(&philo->data->print_lock);
 	}	
-	pthread_mutex_unlock(&philo->data->data_lock);
 }

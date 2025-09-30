@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/29 15:26:11 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/09/30 17:21:44 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,5 +79,6 @@ int					free_data(t_data *data, int mutex_count, int print_lock,
 						int data_lock);
 void				exit_program(t_data *data, t_philo *philos, char *msg,
 						int status);
+int is_simulation_stoped(t_philo *philo);
 
 #endif

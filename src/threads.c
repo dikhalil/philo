@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:26:32 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/29 15:25:57 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/09/30 18:56:55 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,14 +100,12 @@ int	end_philo(t_philo *philos, int philo_count)
 void	monitor_philos(t_philo *philos)
 {
 	int	i;
-	long since_last_meal;
 
 	i = 0;
 	while (i < philos[0].data->num_of_philos)
 	{
 		pthread_mutex_lock(&philos->data->data_lock);
-		since_last_meal = get_time_ms() - philos[i].last_meal;
-		if (since_last_meal > philos[0].data->time_to_die)
+		if ((get_time_ms() - philos[i].last_meal) > philos[0].data->time_to_die)
 		{
 			philos[i].data->stop = 1;
 			pthread_mutex_unlock(&philos->data->data_lock);
