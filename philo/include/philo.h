@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/30 17:21:44 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/01 09:50:12 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,9 @@ typedef struct s_philo
 
 /*---------- check ----------*/
 int					check_args(int ac, char **av);
-int					check_data(t_data *data);
+int					check_data(t_data *data, int flag);
 int					ft_strncmp(const char *s1, const char *s2, size_t n);
+int					ft_atoi(const char *str);
 
 /*---------- initialize ----------*/
 int					init_data(int ac, char **av, t_data *data);

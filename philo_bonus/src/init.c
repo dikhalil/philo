@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:11:23 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/29 13:29:58 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/01 10:10:59 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,18 @@
 
 int	init_data(int ac, char **av, t_data *data)
 {
+	int flag;
+
+	flag = 0;
 	data->num_of_philos = atoi(av[1]);
 	data->time_to_die = atoi(av[2]);
 	data->time_to_eat = atoi(av[3]);
 	data->time_to_sleep = atoi(av[4]);
 	if (ac == 6)
+	{
+		flag = 1;
 		data->num_of_meals = atoi(av[5]);
+	}
 	else
 		data->num_of_meals = -1;
 	data->start_time = 0;
@@ -29,5 +35,5 @@ int	init_data(int ac, char **av, t_data *data)
 		return (1);
 	if (init_mutex(data))
 		return (1);
-	return (check_data(data));
+	return (check_data(data, flag));
 }

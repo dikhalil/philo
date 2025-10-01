@@ -1,0 +1,39 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/28 19:11:23 by dikhalil          #+#    #+#             */
+/*   Updated: 2025/10/01 09:49:17 by dikhalil         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include <philo.h>
+
+int	init_data(int ac, char **av, t_data *data)
+{
+	int	flag;
+
+	flag = 0;
+	data->num_of_philos = ft_atoi(av[1]);
+	data->time_to_die = ft_atoi(av[2]);
+	data->time_to_eat = ft_atoi(av[3]);
+	data->time_to_sleep = ft_atoi(av[4]);
+	if (ac == 6)
+	{
+		flag = 1;
+		data->num_of_meals = ft_atoi(av[5]);
+	}
+	else
+		data->num_of_meals = -1;
+	data->start_time = 0;
+	data->stop = 0;
+	data->forks = malloc(sizeof(pthread_mutex_t) * data->num_of_philos);
+	if (!data->forks)
+		return (1);
+	if (init_mutex(data))
+		return (1);
+	return (check_data(data, flag));
+}

@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:09:47 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/30 19:06:30 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/01 09:53:59 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,32 @@ static int	is_number(char *str)
 		i++;
 	}
 	return (1);
+}
+
+int	ft_atoi(const char *str)
+{
+	int	i;
+	int	flag;
+	int	num;
+
+	i = 0;
+	flag = 1;
+	num = 0;
+	while (str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i] == '\v'
+		|| str[i] == '\f' || str[i] == '\r')
+		i++;
+	if (str[i] == '-' || str[i] == '+')
+	{
+		if (str[i] == '-')
+			flag = -1;
+		i++;
+	}
+	while (str[i] >= '0' && str[i] <= '9')
+	{
+		num = num * 10 + (str[i] - '0');
+		i++;
+	}
+	return (num * flag);
 }
 
 static long	ft_atol(char *str)
@@ -75,14 +101,14 @@ int	check_args(int ac, char **av)
 	return (0);
 }
 
-int	check_data(t_data *data)
+int	check_data(t_data *data, int flag)
 {
 	if (data->num_of_philos < 1)
 		return (1);
 	if (data->time_to_die < 0 || data->time_to_eat < 0
 		|| data->time_to_sleep < 0)
 		return (1);
-	if (data->num_of_meals < -1)
+	if (data->num_of_meals <= -1 && flag)
 		return (1);
 	if (data->num_of_meals == 0)
 		exit_program(data, NULL, NULL, 0);
