@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/01 10:11:43 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/02 20:25:40 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,10 @@
 # include <string.h>
 # include <sys/time.h>
 # include <unistd.h>
+#include <semaphore.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 typedef struct s_data
 {
@@ -29,21 +33,21 @@ typedef struct s_data
 	int				time_to_sleep;
 	int				num_of_meals;
 	long				start_time;
-	int				stop;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	data_lock;
-	pthread_mutex_t	print_lock;
+	sem_t				*stop;
+	sem_t	*forks;
+	sem_t	*print_lock;
+	sem_t	*data_lock;
+	sem_t	*eat;
 }					t_data;
 
 typedef struct s_philo
 {
 	int				id;
-	int				left_fork;
-	int				right_fork;
+	pid_t 			pid;
 	int				meals_count;
 	long			last_meal;
 	struct s_data	*data;
-	pthread_t		thread;
+	pthread_t		monitor;
 }					t_philo;
 
 /*---------- check ----------*/
@@ -58,26 +62,23 @@ int					create_philos(t_data *data, t_philo **philos);
 
 /*---------- threads ----------*/
 int					start_philo(t_philo *philos);
-int					end_philo(t_philo *philos, int philo_count);
-void				monitor_philos(t_philo *philos);
-int	all_finished(t_philo *philos);
+int					end_philos(t_philo *philos, int philo_count);
 
 /*---------- mutexs ----------*/
-int					init_mutex(t_data *data);
 void				print_status(t_philo *philo, long current_time_ms,
 						char *status);
 
 /*---------- routine ----------*/
-void				*philo_routine(void *arg);
-
+void				philo_routine(t_philo *philo);
+void	*monitor(void *arg);
 /*---------- time ----------*/
 long				get_time_ms(void);
 long				current_time_ms(t_data *data);
 void 				custom_usleep(t_philo *philo, long timemc);
 
 /*---------- exit ----------*/
-int					free_data(t_data *data, int mutex_count, int print_lock,
-						int data_lock);
+int	free_data(t_data *data, int forks, int print_lock, int data_lock, int eat, int status);
+
 void				exit_program(t_data *data, t_philo *philos, char *msg,
 						int status);
 int is_simulation_stoped(t_philo *philo);

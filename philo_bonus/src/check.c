@@ -6,11 +6,11 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:09:47 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/01 10:11:18 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/02 18:12:13 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <philo.h>
+#include <philo_bonus.h>
 
 static int	is_number(char *str)
 {

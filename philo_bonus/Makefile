@@ -10,8 +10,8 @@ INCLUDE = -I./include
 SRCS =  src/philo.c \
 		src/check.c \
 		src/init.c \
-		src/threads.c \
-		src/mutexs.c \
+		src/semaphore.c \
+		src/process.c \
 		src/routine.c \
 		src/time.c \
 		src/exit.c \

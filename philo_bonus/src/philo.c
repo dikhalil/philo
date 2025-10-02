@@ -6,11 +6,11 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:20:17 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/30 19:07:36 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/02 18:26:31 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <philo.h>
+#include <philo_bonus.h>
 
 int	main(int ac, char **av)
 {
@@ -27,9 +27,7 @@ int	main(int ac, char **av)
 		exit_program(&data, philos, "Error: Philosopher creation failed\n", 1);
 	if (start_philo(philos))
 		exit_program(&data, philos, "Error: Philosopher Starting failed\n", 1);
-	while (!data.stop)
-		monitor_philos(philos);
-	if (end_philo(philos, data.num_of_philos))
+	if (end_philos(philos, data.num_of_philos))
 		exit_program(&data, philos, "Error: Philosopher Ending failed\n", 1);
 	exit_program(&data, philos, NULL, 0);
 	return (0);
