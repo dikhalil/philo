@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:26:32 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 17:43:41 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 19:07:09 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,14 @@ int	end_philos(t_philo *philos, int philo_count)
 		status = 1;
 	while (i < philo_count)
 	{
-		if (philos[i].exit_status != 1)
+		if (waitpid(philos[i].pid, NULL, WNOHANG) == 0)
 		{
 			kill(philos[i].pid, SIGKILL);
 			waitpid(philos[i].pid, NULL, 0);
 		}
+		else
+			waitpid(philos[i].pid, NULL, 0);
+
 		i++;
 	}
 	return (status);
@@ -35,7 +38,6 @@ int	end_philos(t_philo *philos, int philo_count)
 
 static void wait_childs(t_philo *philos)
 {
-	//pid_t pid;
 	int status;
 	int all_finished;
 
@@ -44,8 +46,6 @@ static void wait_childs(t_philo *philos)
 	while (all_finished < philos->data->num_of_philos)
 	{
 		waitpid(-1, &status, 0);
-		// if (pid == -1)
-		// 	break ;
 		all_finished++;
 		if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
 		{
@@ -88,12 +88,12 @@ void	*monitor(void *arg)
 	philo = (t_philo *)arg;
 	while (1)
 	{
-		sem_wait(philo->data->data_lock);
+		pthread_mutex_lock(&philo->data_lock);
 		if ((get_time_ms() - philo->last_meal) > philo->data->time_to_die)
 		{
 			philo->data->stop = 1;
 			philo->exit_status = 1;
-			sem_post(philo->data->data_lock);
+			pthread_mutex_unlock(&philo->data_lock);
 			sem_wait(philo->data->print_lock);
 	    	printf("%ld %d %s\n", current_time_ms(philo->data), philo->id, "died");
 			exit(1);
@@ -101,10 +101,10 @@ void	*monitor(void *arg)
 		if (philo->data->num_of_meals != -1 && philo->meals_count > philo->data->num_of_meals)
 		{
 			philo->exit_status = 0;
-			sem_post(philo->data->data_lock);
+			pthread_mutex_unlock(&philo->data_lock);
 			return (NULL);
 		}
-		sem_post(philo->data->data_lock);
+		pthread_mutex_unlock(&philo->data_lock);
 		usleep(100);
 	}
 	return (NULL);

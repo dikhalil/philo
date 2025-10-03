@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:11:23 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 17:23:39 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 19:03:51 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,6 @@ static int sems_init(t_data *data)
 		return (1);
 	data->print_lock = sem_create("/print", 1, data);
 	if (data->print_lock == SEM_FAILED)
-		return (1);
-	data->data_lock = sem_create("/data", 1, data);
-	if (data->data_lock == SEM_FAILED)
 		return (1);
 	return (0);
 }
@@ -78,6 +75,11 @@ int	create_philos(t_data *data, t_philo **philos)
 		(*philos)[i].last_meal = 0;
 		(*philos)[i].data = data;
 		(*philos)[i].exit_status = -1;
+		if(pthread_mutex_init(&(*philos)[i].data_lock, NULL))
+		{
+			pthread_mutex_destroy(&(*philos)[i].data_lock);
+			return (1);
+		}
 		i++;
 	}
 	return (0);

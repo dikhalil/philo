@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 16:46:19 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 18:43:58 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ typedef struct s_data
 	int				stop;
 	sem_t	*forks;
 	sem_t	*print_lock;
-	sem_t	*data_lock;
 	sem_t	*eat;
 }					t_data;
 
@@ -48,6 +47,7 @@ typedef struct s_philo
 	long			last_meal;
 	int exit_status;
 	struct s_data	*data;
+	pthread_mutex_t data_lock;
 	pthread_t		monitor;
 
 }					t_philo;

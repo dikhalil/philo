@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:09:47 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 18:01:22 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 18:55:49 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,11 +66,11 @@ int	check_data(t_data *data, int flag)
 
 int is_simulation_stoped(t_philo *philo)
 {
-    sem_wait(philo->data->data_lock);
+    pthread_mutex_lock(&philo->data_lock);
     int stopped = philo->data->stop;
     int meals_finished = (philo->data->num_of_meals != -1 && philo->meals_count > philo->data->num_of_meals);
-	// if (meals_finished)
-	// 	philo->exit_status = 0;
-    sem_post(philo->data->data_lock);
+	if (meals_finished)
+		philo->exit_status = 0;
+    pthread_mutex_unlock(&philo->data_lock);
     return (stopped || meals_finished); 
 }
