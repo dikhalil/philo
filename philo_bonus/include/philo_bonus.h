@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/02 20:25:40 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 08:03:07 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,8 @@ typedef struct s_data
 	int				time_to_sleep;
 	int				num_of_meals;
 	long				start_time;
-	sem_t				*stop;
+	int				stop;
+	sem_t *sem_stop;
 	sem_t	*forks;
 	sem_t	*print_lock;
 	sem_t	*data_lock;
@@ -46,8 +47,10 @@ typedef struct s_philo
 	pid_t 			pid;
 	int				meals_count;
 	long			last_meal;
+	int exit_status;
 	struct s_data	*data;
 	pthread_t		monitor;
+
 }					t_philo;
 
 /*---------- check ----------*/
@@ -77,8 +80,7 @@ long				current_time_ms(t_data *data);
 void 				custom_usleep(t_philo *philo, long timemc);
 
 /*---------- exit ----------*/
-int	free_data(t_data *data, int forks, int print_lock, int data_lock, int eat, int status);
-
+int	free_data(t_data *data, int forks, int print_lock, int data_lock, int eat,int stop, int status);
 void				exit_program(t_data *data, t_philo *philos, char *msg,
 						int status);
 int is_simulation_stoped(t_philo *philo);

@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:14:31 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/02 20:06:40 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 08:09:57 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,26 +14,16 @@
 
 static void	thinking(t_philo *philo)
 {
-	if (is_simulation_stoped(philo))
-		return ;
 	print_status(philo, current_time_ms(philo->data), "is thinking");
 }
 
-static int	take_fork(t_philo *philo)
+static void	take_fork(t_philo *philo)
 {
-	if (is_simulation_stoped(philo))
-		return (0);
 	sem_wait(philo->data->forks);
 	print_status(philo, current_time_ms(philo->data), "has taken fork");
 	sem_wait(philo->data->forks);
 	print_status(philo, current_time_ms(philo->data), "has taken fork");
-	if (is_simulation_stoped(philo))
-	{
-		sem_post(philo->data->forks);
-		sem_post(philo->data->forks);
-		return (0);
-	}
-	return (1);
+
 }
 
 static void	eating(t_philo *philo)
@@ -47,8 +37,14 @@ static void	eating(t_philo *philo)
 		return ;
 	}
 	sem_wait(philo->data->eat);
-	if (!take_fork(philo))
+	take_fork(philo);
+	if (is_simulation_stoped(philo))
+	{
+		sem_post(philo->data->forks);
+		sem_post(philo->data->forks);
+		sem_post(philo->data->eat);
 		return ;
+	}
 	sem_wait(philo->data->data_lock);
 	philo->last_meal = get_time_ms();
 	philo->meals_count++;
@@ -63,9 +59,10 @@ static void	eating(t_philo *philo)
 static void	sleeping(t_philo *philo)
 {
 	if (is_simulation_stoped(philo))
-		return ;
-	print_status(philo, current_time_ms(philo->data), "is sleeping");
-	custom_usleep(philo, philo->data->time_to_sleep * 1000);
+	{
+		print_status(philo, current_time_ms(philo->data), "is sleeping");
+		custom_usleep(philo, philo->data->time_to_sleep * 1000);
+	}
 }
 
 void	philo_routine(t_philo	*philo)
@@ -78,21 +75,28 @@ void	philo_routine(t_philo	*philo)
 		sleeping(philo);
 		thinking(philo);
 	}
-	exit(1);
+	exit(philo->exit_status);
 }
-
 int is_simulation_stoped(t_philo *philo)
 {
 	sem_wait(philo->data->data_lock);
+	if (philo->data->stop)
+	{
+		sem_post(philo->data->data_lock);
+		return (1);
+	}
 	if (get_time_ms() - philo->last_meal > philo->data->time_to_die)
 	{
-		if (!philo->data->stop)
-		{
-			philo->data->stop = 1;
-			sem_post(philo->data->data_lock);
-			print_status(philo, current_time_ms(philo->data), "died");
-			return(1);
-		}
+		philo->exit_status = 1;
+		sem_post(philo->data->data_lock);
+		print_status(philo, current_time_ms(philo->data), "died");
+		return(1);
+	}
+	if (philo->data->num_of_meals != -1 && philo->meals_count == philo->data->num_of_meals)
+	{
+		philo->exit_status = 0;
+		sem_post(philo->data->data_lock);
+		return (1);
 	}
 	sem_post(philo->data->data_lock);
 	return (0);

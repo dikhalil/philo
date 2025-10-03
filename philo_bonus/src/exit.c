@@ -6,13 +6,13 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:12:26 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/02 20:27:52 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/02 22:50:36 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <philo_bonus.h>
 
-int	free_data(t_data *data, int forks, int print_lock, int data_lock, int eat,int stop,, int status)
+int	free_data(t_data *data, int forks, int print_lock, int data_lock, int eat,int stop, int status)
 {
 	if (forks)
 	{
@@ -36,7 +36,7 @@ int	free_data(t_data *data, int forks, int print_lock, int data_lock, int eat,in
 	}
 	if (stop)
 	{
-		sem_close(data->stop);
+		sem_close(data->sem_stop);
 		sem_unlink("/stop");
 	}
 	return (status);
@@ -45,7 +45,7 @@ int	free_data(t_data *data, int forks, int print_lock, int data_lock, int eat,in
 void	exit_program(t_data *data, t_philo *philos, char *msg, int status)
 {
 	if (data)
-		free_data(data, 1, 1, 1, 1,status);
+		free_data(data, 1, 1, 1, 1,1,status);
 	if (philos)
 		free(philos);
 	if (msg)
