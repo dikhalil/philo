@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/01 09:50:12 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 11:16:07 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,13 +46,21 @@ typedef struct s_philo
 	pthread_t		thread;
 }					t_philo;
 
+/*---------- utils ----------*/
+int					ft_strncmp(const char *s1, const char *s2, size_t n);
+int					ft_atoi(const char *str);
+long				ft_atol(char *str);
+void				print_status(t_philo *philo, long current_time_ms,
+						char *status);
+
 /*---------- check ----------*/
 int					check_args(int ac, char **av);
 int					check_data(t_data *data, int flag);
-int					ft_strncmp(const char *s1, const char *s2, size_t n);
-int					ft_atoi(const char *str);
+int					all_finished(t_philo *philos);
+int					is_simulation_stoped(t_philo *philo);
 
 /*---------- initialize ----------*/
+int					init_mutex(t_data *data);
 int					init_data(int ac, char **av, t_data *data);
 int					create_philos(t_data *data, t_philo **philos);
 
@@ -60,12 +68,7 @@ int					create_philos(t_data *data, t_philo **philos);
 int					start_philo(t_philo *philos);
 int					end_philo(t_philo *philos, int philo_count);
 void				monitor_philos(t_philo *philos);
-int	all_finished(t_philo *philos);
 
-/*---------- mutexs ----------*/
-int					init_mutex(t_data *data);
-void				print_status(t_philo *philo, long current_time_ms,
-						char *status);
 
 /*---------- routine ----------*/
 void				*philo_routine(void *arg);
@@ -80,6 +83,5 @@ int					free_data(t_data *data, int mutex_count, int print_lock,
 						int data_lock);
 void				exit_program(t_data *data, t_philo *philos, char *msg,
 						int status);
-int is_simulation_stoped(t_philo *philo);
 
 #endif

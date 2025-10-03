@@ -7,14 +7,14 @@ NAME = philo_bonus
 INCLUDE = -I./include
 
 # Source files
-SRCS =  src/philo.c \
-		src/check.c \
-		src/init.c \
-		src/semaphore.c \
-		src/process.c \
-		src/routine.c \
-		src/time.c \
-		src/exit.c \
+SRCS =  src/philo_bonus.c \
+		src/check_bonus.c \
+		src/init_bonus.c \
+		src/utils_bonus.c \
+		src/process_bonus.c \
+		src/routine_bonus.c \
+		src/time_bonus.c \
+		src/exit_bonus.c \
 
 # Object files
 OBJ_DIR = obj

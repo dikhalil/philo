@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 08:03:07 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 16:46:19 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ typedef struct s_data
 	int				num_of_meals;
 	long				start_time;
 	int				stop;
-	sem_t *sem_stop;
 	sem_t	*forks;
 	sem_t	*print_lock;
 	sem_t	*data_lock;
@@ -56,33 +55,35 @@ typedef struct s_philo
 /*---------- check ----------*/
 int					check_args(int ac, char **av);
 int					check_data(t_data *data, int flag);
+int 				is_simulation_stoped(t_philo *philo);
+
+/*---------- utils ----------*/
 int					ft_strncmp(const char *s1, const char *s2, size_t n);
 int					ft_atoi(const char *str);
+long				ft_atol(char *str);
+void				print_status(t_philo *philo, long current_time_ms,
+						char *status);
 
 /*---------- initialize ----------*/
 int					init_data(int ac, char **av, t_data *data);
 int					create_philos(t_data *data, t_philo **philos);
 
-/*---------- threads ----------*/
+/*---------- process ----------*/
 int					start_philo(t_philo *philos);
 int					end_philos(t_philo *philos, int philo_count);
-
-/*---------- mutexs ----------*/
-void				print_status(t_philo *philo, long current_time_ms,
-						char *status);
+void				*monitor(void *arg);
 
 /*---------- routine ----------*/
 void				philo_routine(t_philo *philo);
-void	*monitor(void *arg);
+
 /*---------- time ----------*/
 long				get_time_ms(void);
 long				current_time_ms(t_data *data);
 void 				custom_usleep(t_philo *philo, long timemc);
 
 /*---------- exit ----------*/
-int	free_data(t_data *data, int forks, int print_lock, int data_lock, int eat,int stop, int status);
+void 				free_data(t_data *data);
 void				exit_program(t_data *data, t_philo *philos, char *msg,
 						int status);
-int is_simulation_stoped(t_philo *philo);
 
 #endif

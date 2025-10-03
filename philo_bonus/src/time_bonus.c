@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   time.c                                             :+:      :+:    :+:   */
+/*   time_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:13:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/02 20:18:59 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 17:23:18 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,22 +28,11 @@ long	current_time_ms(t_data *data)
 	return (ct);
 }
 
-void custom_usleep(t_philo *philo, long timemc)
+void custom_usleep(t_philo *philo, long timems)
 {
 	long start;
-	long end;
 	
-	start = get_time_ms() * 1000;
-	end = start + timemc;
-	while (get_time_ms() * 1000 < end)
-	{
-		sem_wait(philo->data->data_lock);
-		if (philo->data->stop)
-		{
-			sem_post(philo->data->data_lock);
-			break;
-		}
-		sem_post(philo->data->data_lock);
+	start = get_time_ms();
+	while (!is_simulation_stoped(philo) && ((get_time_ms() - start) < timems))
 		usleep(100);
-	}
 }

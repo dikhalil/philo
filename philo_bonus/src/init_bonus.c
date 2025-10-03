@@ -1,66 +1,64 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init.c                                             :+:      :+:    :+:   */
+/*   init_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:11:23 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 11:17:29 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 17:23:39 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <philo.h>
+#include <philo_bonus.h>
 
-int	init_mutex(t_data *data)
+static sem_t *sem_create(const char *name, int value, t_data *data)
 {
-	int	i;
+	sem_t *sem;
 
-	i = 0;
-	while (i < data->num_of_philos)
-	{
-		if (pthread_mutex_init(&data->forks[i], NULL))
-		{
-			free_data(data, i, 0, 0);
-			return (1);
-		}
-		i++;
-	}
-	if (pthread_mutex_init(&data->print_lock, NULL))
-	{
-		free_data(data, i, 0, 0);
+	sem_unlink(name);
+	sem = sem_open(name, O_CREAT, 0466, value);
+	if (sem == SEM_FAILED)
+		free_data(data);
+	return (sem);
+}
+
+static int sems_init(t_data *data)
+{
+	data->forks = sem_create("/forks", data->num_of_philos, data);
+	if (data->forks == SEM_FAILED)
 		return (1);
-	}
-	if (pthread_mutex_init(&data->data_lock, NULL))
-	{
-		free_data(data, i, 1, 0);
+	data->eat = sem_create("/eat", data->num_of_philos / 2, data);
+	if (data->eat == SEM_FAILED)
 		return (1);
-	}
+	data->print_lock = sem_create("/print", 1, data);
+	if (data->print_lock == SEM_FAILED)
+		return (1);
+	data->data_lock = sem_create("/data", 1, data);
+	if (data->data_lock == SEM_FAILED)
+		return (1);
 	return (0);
 }
 
 int	init_data(int ac, char **av, t_data *data)
 {
-	int	flag;
+	int flag;
 
 	flag = 0;
-	data->num_of_philos = ft_atoi(av[1]);
-	data->time_to_die = ft_atoi(av[2]);
-	data->time_to_eat = ft_atoi(av[3]);
-	data->time_to_sleep = ft_atoi(av[4]);
+	data->num_of_philos = atoi(av[1]);
+	data->time_to_die = atoi(av[2]);
+	data->time_to_eat = atoi(av[3]);
+	data->time_to_sleep = atoi(av[4]);
 	if (ac == 6)
 	{
 		flag = 1;
-		data->num_of_meals = ft_atoi(av[5]);
+		data->num_of_meals = atoi(av[5]);
 	}
 	else
 		data->num_of_meals = -1;
 	data->start_time = 0;
 	data->stop = 0;
-	data->forks = malloc(sizeof(pthread_mutex_t) * data->num_of_philos);
-	if (!data->forks)
-		return (1);
-	if (init_mutex(data))
+	if (sems_init(data))
 		return (1);
 	return (check_data(data, flag));
 }
@@ -77,13 +75,11 @@ int	create_philos(t_data *data, t_philo **philos)
 	{
 		(*philos)[i].id = i + 1;
 		(*philos)[i].meals_count = 0;
-		(*philos)[i].left_fork = i;
-		(*philos)[i].right_fork = (i + 1) % data->num_of_philos;
 		(*philos)[i].last_meal = 0;
 		(*philos)[i].data = data;
+		(*philos)[i].exit_status = -1;
 		i++;
 	}
 	return (0);
 }
-
 

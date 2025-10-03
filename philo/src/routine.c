@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:14:31 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/02 18:35:45 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 15:51:48 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,11 @@
 
 static void	thinking(t_philo *philo)
 {
-	if (is_simulation_stoped(philo))
-		return ;
 	print_status(philo, current_time_ms(philo->data), "is thinking");
 }
 
-static int	take_fork(t_philo *philo)
+static void	take_fork(t_philo *philo)
 {
-	if (is_simulation_stoped(philo))
-		return (0);
 	if (philo->id % 2 == 0)
 	{
 		pthread_mutex_lock(&philo->data->forks[philo->left_fork]);
@@ -41,9 +37,7 @@ static int	take_fork(t_philo *philo)
 	{
 		pthread_mutex_unlock(&philo->data->forks[philo->right_fork]);
 		pthread_mutex_unlock(&philo->data->forks[philo->left_fork]);
-		return (0);
 	}
-	return (1);
 }
 
 static void	eating(t_philo *philo)
@@ -52,28 +46,27 @@ static void	eating(t_philo *philo)
 	{
 		pthread_mutex_lock(&philo->data->forks[philo->left_fork]);
 		print_status(philo, current_time_ms(philo->data), "has taken fork");
-		custom_usleep(philo, philo->data->time_to_die * 1000);
+		custom_usleep(philo, philo->data->time_to_die);
 		pthread_mutex_unlock(&philo->data->forks[philo->left_fork]);
 		return ;
 	}
-	if (!take_fork(philo))
+	take_fork(philo);
+	if (is_simulation_stoped(philo))
 		return ;
 	pthread_mutex_lock(&philo->data->data_lock);
 	philo->last_meal = get_time_ms();
 	philo->meals_count++;
 	pthread_mutex_unlock(&philo->data->data_lock);
 	print_status(philo, current_time_ms(philo->data), "is eating");
-	custom_usleep(philo, philo->data->time_to_eat * 1000);
+	custom_usleep(philo, philo->data->time_to_eat);
 	pthread_mutex_unlock(&philo->data->forks[philo->right_fork]);
 	pthread_mutex_unlock(&philo->data->forks[philo->left_fork]);
 }
 
 static void	sleeping(t_philo *philo)
 {
-	if (is_simulation_stoped(philo))
-		return ;
 	print_status(philo, current_time_ms(philo->data), "is sleeping");
-	custom_usleep(philo, philo->data->time_to_sleep * 1000);
+	custom_usleep(philo, philo->data->time_to_sleep);
 }
 
 void	*philo_routine(void *arg)
@@ -88,20 +81,4 @@ void	*philo_routine(void *arg)
 		thinking(philo);
 	}
 	return (NULL);
-}
-
-int is_simulation_stoped(t_philo *philo)
-{
-	int stoped;
-
-	stoped = 1;
-	pthread_mutex_lock(&philo->data->data_lock);
-	if (get_time_ms() - philo->last_meal > philo->data->time_to_die)
-	{
-		pthread_mutex_unlock(&philo->data->data_lock);
-		return (stoped);
-	}
-	stoped = philo->data->stop;
-	pthread_mutex_unlock(&philo->data->data_lock);
-	return (stoped);
 }

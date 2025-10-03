@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   check.c                                            :+:      :+:    :+:   */
+/*   check_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:09:47 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 15:40:02 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 18:01:22 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <philo.h>
+#include <philo_bonus.h>
 
 static int	is_number(char *str)
 {
@@ -64,37 +64,13 @@ int	check_data(t_data *data, int flag)
 	return (0);
 }
 
-int	all_finished(t_philo *philos)
-{
-	int	i;
-
-	i = 0;
-	pthread_mutex_lock(&philos->data->data_lock);
-	while (i < philos[0].data->num_of_philos)
-	{
-		if (philos[i].meals_count <= philos[i].data->num_of_meals)
-		{
-			pthread_mutex_unlock(&philos->data->data_lock);
-			return (0);
-		}
-		i++;
-	}
-	pthread_mutex_unlock(&philos->data->data_lock);
-	return (1);
-}
-
 int is_simulation_stoped(t_philo *philo)
 {
-	int stoped;
-
-	pthread_mutex_lock(&philo->data->data_lock);
-	stoped = philo->data->stop;
-	if ((get_time_ms() - philo->last_meal) >= philo->data->time_to_die && !stoped)
-		stoped = 1;
-	if (philo->data->num_of_meals != -1 && philo->meals_count > philo->data->num_of_meals && !stoped)
-		stoped = 1;
-	pthread_mutex_unlock(&philo->data->data_lock);
-	return (stoped);
+    sem_wait(philo->data->data_lock);
+    int stopped = philo->data->stop;
+    int meals_finished = (philo->data->num_of_meals != -1 && philo->meals_count > philo->data->num_of_meals);
+	// if (meals_finished)
+	// 	philo->exit_status = 0;
+    sem_post(philo->data->data_lock);
+    return (stopped || meals_finished); 
 }
-
-

@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:13:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/29 14:41:51 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 16:30:03 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,22 +28,12 @@ long	current_time_ms(t_data *data)
 	return (ct);
 }
 
-void custom_usleep(t_philo *philo, long timemc)
+void custom_usleep(t_philo *philo, long timems)
 {
 	long start;
-	long end;
 	
-	start = get_time_ms() * 1000;
-	end = start + timemc;
-	while (get_time_ms() * 1000 < end)
-	{
-		pthread_mutex_lock(&philo->data->data_lock);
-		if (philo->data->stop)
-		{
-			pthread_mutex_unlock(&philo->data->data_lock);
-			break;
-		}
-		pthread_mutex_unlock(&philo->data->data_lock);
+	start = get_time_ms();
+	while (!is_simulation_stoped(philo) && ((get_time_ms() - start) < timems))
 		usleep(100);
-	}
 }
+

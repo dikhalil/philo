@@ -1,36 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   check.c                                            :+:      :+:    :+:   */
+/*   utils_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/28 19:09:47 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/02 18:12:13 by dikhalil         ###   ########.fr       */
+/*   Created: 2025/10/03 16:28:42 by dikhalil          #+#    #+#             */
+/*   Updated: 2025/10/03 17:56:39 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <philo_bonus.h>
 
-static int	is_number(char *str)
-{
-	int	i;
-
-	i = 0;
-	if (!str || !str[i])
-		return (0);
-	if (str[i] == '+' || str[i] == '-')
-		i++;
-	if (!str[i])
-		return (0);
-	while (str[i])
-	{
-		if (str[i] < '0' || str[i] > '9')
-			return (0);
-		i++;
-	}
-	return (1);
-}
 int	ft_atoi(const char *str)
 {
 	int	i;
@@ -56,7 +37,8 @@ int	ft_atoi(const char *str)
 	}
 	return (num * flag);
 }
-static long	ft_atol(char *str)
+
+long	ft_atol(char *str)
 {
 	long	res;
 	int		sign;
@@ -81,38 +63,6 @@ static long	ft_atol(char *str)
 	return (res * sign);
 }
 
-int	check_args(int ac, char **av)
-{
-	int		i;
-	long	num;
-
-	i = 1;
-	while (i < ac)
-	{
-		if (!is_number(av[i]))
-			return (1);
-		num = ft_atol(av[i]);
-		if (num > INT_MAX || num < INT_MIN)
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-int	check_data(t_data *data, int flag)
-{
-	if (data->num_of_philos < 1)
-		return (1);
-	if (data->time_to_die < 0 || data->time_to_eat < 0
-		|| data->time_to_sleep < 0)
-		return (1);
-	if (data->num_of_meals <= -1 && flag)
-		return (1);
-	if (data->num_of_meals == 0)
-		exit_program(data, NULL, NULL, 0);
-	return (0);
-}
-
 int	ft_strncmp(const char *s1, const char *s2, size_t n)
 {
 	unsigned char	*s_1;
@@ -135,4 +85,12 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 		i++;
 	}
 	return (0);
+}
+
+void	print_status(t_philo *philo, long current_time_ms, char *status)
+{
+	sem_wait(philo->data->print_lock);
+	if (!is_simulation_stoped(philo))
+	    printf("%ld %d %s\n", current_time_ms, philo->id, status);
+	sem_post(philo->data->print_lock);
 }

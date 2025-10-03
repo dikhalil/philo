@@ -1,36 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   process.c                                          :+:      :+:    :+:   */
+/*   process_bonus.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:26:32 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 08:08:33 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/03 17:43:41 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <philo_bonus.h>
 
-int	create_philos(t_data *data, t_philo **philos)
-{
-	int	i;
-
-	i = 0;
-	*philos = malloc(sizeof(t_philo) * data->num_of_philos);
-	if (!*philos)
-		return (1);
-	while (i < data->num_of_philos)
-	{
-		(*philos)[i].id = i + 1;
-		(*philos)[i].meals_count = 0;
-		(*philos)[i].last_meal = 0;
-		(*philos)[i].data = data;
-		(*philos)[i].exit_status = -1;
-		i++;
-	}
-	return (0);
-}
 int	end_philos(t_philo *philos, int philo_count)
 {
 	int	status;
@@ -42,7 +23,7 @@ int	end_philos(t_philo *philos, int philo_count)
 		status = 1;
 	while (i < philo_count)
 	{
-		if (waitpid(philos[i].pid, NULL, WNOHANG) == 0)
+		if (philos[i].exit_status != 1)
 		{
 			kill(philos[i].pid, SIGKILL);
 			waitpid(philos[i].pid, NULL, 0);
@@ -51,9 +32,10 @@ int	end_philos(t_philo *philos, int philo_count)
 	}
 	return (status);
 }
+
 static void wait_childs(t_philo *philos)
 {
-	pid_t pid;
+	//pid_t pid;
 	int status;
 	int all_finished;
 
@@ -61,9 +43,9 @@ static void wait_childs(t_philo *philos)
 	all_finished = 0;
 	while (all_finished < philos->data->num_of_philos)
 	{
-		pid = waitpid(-1, &status, 0);
-		if (pid == -1)
-			break ;
+		waitpid(-1, &status, 0);
+		// if (pid == -1)
+		// 	break ;
 		all_finished++;
 		if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
 		{
@@ -92,9 +74,7 @@ int	start_philo(t_philo *philos)
 		else if (pid == 0)
 			philo_routine(&philos[i]);
 		else
-		{
 			philos[i].pid = pid;
-		}
 		i++;
 	}
 	wait_childs(philos);
@@ -114,10 +94,11 @@ void	*monitor(void *arg)
 			philo->data->stop = 1;
 			philo->exit_status = 1;
 			sem_post(philo->data->data_lock);
-			print_status(philo, current_time_ms(philo->data), "died");
-			return (NULL);
+			sem_wait(philo->data->print_lock);
+	    	printf("%ld %d %s\n", current_time_ms(philo->data), philo->id, "died");
+			exit(1);
 		}
-		if (philo->data->num_of_meals != -1 && philo->meals_count == philo->data->num_of_meals)
+		if (philo->data->num_of_meals != -1 && philo->meals_count > philo->data->num_of_meals)
 		{
 			philo->exit_status = 0;
 			sem_post(philo->data->data_lock);

@@ -9,9 +9,9 @@ INCLUDE = -I./include
 # Source files
 SRCS =  src/philo.c \
 		src/check.c \
+		src/utils.c \
 		src/init.c \
 		src/threads.c \
-		src/mutexs.c \
 		src/routine.c \
 		src/time.c \
 		src/exit.c \
