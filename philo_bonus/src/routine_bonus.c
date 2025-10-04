@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:14:31 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/04 13:09:09 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/04 14:07:07 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ static void	take_fork(t_philo *philo)
 		sem_post(philo->data->forks);
 		sem_post(philo->data->forks);
 		sem_post(philo->data->eat);
-		return ;
 	}
 }
 
@@ -77,5 +76,3 @@ void	philo_routine(t_philo	*philo)
 	pthread_join(philo->monitor, NULL);
 	exit_child(philo);
 }
-
-

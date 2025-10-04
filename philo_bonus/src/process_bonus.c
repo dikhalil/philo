@@ -6,90 +6,60 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:26:32 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/04 13:16:51 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/04 14:10:53 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <philo_bonus.h>
 
-//int	end_philos(t_philo *philos, int philo_count)
-//{
-//	int	status;
-//	int i;
-
-//	i = 0;
-//	status = 0;
-//	if (philo_count != philos->data->num_of_philos)
-//		status = 1;
-//	while (i < philo_count)
-//	{
-//		if (waitpid(philos[i].pid, NULL, WNOHANG) == 0)
-//		{
-//			free_data(philos[i].data, 0);
-//			kill(philos[i].pid, SIGKILL);
-//			waitpid(philos[i].pid, NULL, 0);
-//		}
-//		else
-//			waitpid(philos[i].pid, NULL, 0);
-//		pthread_mutex_destroy(&philos[i].data_lock);
-//		i++;
-//	}
-//	return (status);
-//}
-
-//static void wait_childs(t_philo *philos)
-//{
-//	int status;
-//	int all_finished;
-
-//	status = 0;
-//	all_finished = 0;
-//	while (all_finished < philos->data->num_of_philos)
-//	{
-//		waitpid(-1, &status, 0);
-//		if (WIFEXITED(status))
-//		{
-//			if (WEXITSTATUS(status) == 1)
-//			{
-//				end_philos(philos, philos->data->num_of_philos);
-//				break ;
-//			}
-//			else if (WEXITSTATUS(status) == 0)
-//				all_finished++;
-//		}
-//	}
-//}
-int end_philos(t_philo *philos, int philo_count)
+int	end_philos(t_philo *philos, int philo_count)
 {
+	int	status;
 	int i;
 
-	for (i = 0; i < philo_count; i++)
+	i = 0;
+	status = 0;
+	if (philo_count != philos->data->num_of_philos)
+		status = 1;
+	while (i < philo_count)
 	{
-		if (kill(philos[i].pid, SIGKILL) == 0)
+		if (waitpid(philos[i].pid, NULL, WNOHANG) == 0)
+		{
+			free_data(philos[i].data, 0);
+			kill(philos[i].pid, SIGKILL);
+			waitpid(philos[i].pid, NULL, 0);
+		}
+		else
 			waitpid(philos[i].pid, NULL, 0);
 		pthread_mutex_destroy(&philos[i].data_lock);
+		i++;
 	}
-	return 0;
+	return (status);
 }
+
 static void wait_childs(t_philo *philos)
 {
 	int status;
-	int finished = 0;
-	int total = philos->data->num_of_philos;
+	int all_finished;
 
-	while (finished < total)
+	status = 0;
+	all_finished = 0;
+	while (all_finished < philos->data->num_of_philos)
 	{
-		if (waitpid(-1, &status, 0) > 0)
+		waitpid(-1, &status, 0);
+		if (WIFEXITED(status))
 		{
-			if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
+			if (WEXITSTATUS(status) == 1)
 			{
-				end_philos(philos, total);
-				break;
+				end_philos(philos, philos->data->num_of_philos);
+				break ;
 			}
-			finished++;
+			else if (WEXITSTATUS(status) == 0)
+				all_finished++;
 		}
 	}
 }
+
 
 
 
@@ -134,13 +104,14 @@ void	*monitor(void *arg)
 			pthread_mutex_unlock(&philo->data_lock);
 			sem_wait(philo->data->print_lock);
 			printf("%ld %d %s\n", current_time_ms(philo->data), philo->id, "died");
-			return (NULL);
+			sem_post(philo->data->print_lock);
+			break ;
 		}
 		if (philo->data->num_of_meals != -1 && philo->meals_count > philo->data->num_of_meals)
 		{
 			philo->exit_status = 0;
 			pthread_mutex_unlock(&philo->data_lock);
-			return (NULL);
+			break ;
 		}
 		pthread_mutex_unlock(&philo->data_lock);
 		usleep(100);

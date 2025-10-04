@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:12:26 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/04 12:54:53 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/04 13:54:11 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,3 +50,4 @@ void exit_child(t_philo *philo)
 	//free(philo->philos);
 	exit(philo->exit_status);
 }
+  
