@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:14:31 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 15:51:48 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/04 09:50:21 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,7 @@ static void	take_fork(t_philo *philo)
 		pthread_mutex_lock(&philo->data->forks[philo->left_fork]);
 		print_status(philo, current_time_ms(philo->data), "has taken fork");
 	}
-	if (is_simulation_stoped(philo))
-	{
-		pthread_mutex_unlock(&philo->data->forks[philo->right_fork]);
-		pthread_mutex_unlock(&philo->data->forks[philo->left_fork]);
-	}
+
 }
 
 static void	eating(t_philo *philo)
@@ -52,7 +48,11 @@ static void	eating(t_philo *philo)
 	}
 	take_fork(philo);
 	if (is_simulation_stoped(philo))
+	{
+		pthread_mutex_unlock(&philo->data->forks[philo->right_fork]);
+		pthread_mutex_unlock(&philo->data->forks[philo->left_fork]);
 		return ;
+	}
 	pthread_mutex_lock(&philo->data->data_lock);
 	philo->last_meal = get_time_ms();
 	philo->meals_count++;
@@ -76,6 +76,8 @@ void	*philo_routine(void *arg)
 	philo = (t_philo *)arg;
 	while (!is_simulation_stoped(philo))
 	{
+		if (philo->id % 2)
+			usleep (50);
 		eating(philo);
 		sleeping(philo);
 		thinking(philo);

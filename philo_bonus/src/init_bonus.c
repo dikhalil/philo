@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:11:23 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 19:03:51 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/04 11:44:10 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static sem_t *sem_create(const char *name, int value, t_data *data)
 	sem_unlink(name);
 	sem = sem_open(name, O_CREAT, 0466, value);
 	if (sem == SEM_FAILED)
-		free_data(data);
+		free_data(data, 1);
 	return (sem);
 }
 
@@ -42,14 +42,14 @@ int	init_data(int ac, char **av, t_data *data)
 	int flag;
 
 	flag = 0;
-	data->num_of_philos = atoi(av[1]);
-	data->time_to_die = atoi(av[2]);
-	data->time_to_eat = atoi(av[3]);
-	data->time_to_sleep = atoi(av[4]);
+	data->num_of_philos = ft_atoi(av[1]);
+	data->time_to_die = ft_atoi(av[2]);
+	data->time_to_eat = ft_atoi(av[3]);
+	data->time_to_sleep = ft_atoi(av[4]);
 	if (ac == 6)
 	{
 		flag = 1;
-		data->num_of_meals = atoi(av[5]);
+		data->num_of_meals = ft_atoi(av[5]);
 	}
 	else
 		data->num_of_meals = -1;
@@ -75,6 +75,7 @@ int	create_philos(t_data *data, t_philo **philos)
 		(*philos)[i].last_meal = 0;
 		(*philos)[i].data = data;
 		(*philos)[i].exit_status = -1;
+		(*philos)[i].philos = *philos;
 		if(pthread_mutex_init(&(*philos)[i].data_lock, NULL))
 		{
 			pthread_mutex_destroy(&(*philos)[i].data_lock);

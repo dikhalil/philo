@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:14:31 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 19:15:59 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/04 13:09:09 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 static void	thinking(t_philo *philo)
 {
 	print_status(philo, current_time_ms(philo->data), "is thinking");
-	// if (philo->id % 2 == 0)
-	//    usleep(100);
 }
 
 static void	take_fork(t_philo *philo)
@@ -30,6 +28,7 @@ static void	take_fork(t_philo *philo)
 		sem_post(philo->data->forks);
 		sem_post(philo->data->forks);
 		sem_post(philo->data->eat);
+		return ;
 	}
 }
 
@@ -65,16 +64,18 @@ static void	sleeping(t_philo *philo)
 }
 
 void	philo_routine(t_philo	*philo)
-{	
+{
 	pthread_create(&philo->monitor, NULL, monitor, philo);
-	pthread_detach(philo->monitor);
 	while (!is_simulation_stoped(philo))
 	{
+		if (philo->id % 2)
+			usleep (50);
 		eating(philo);
 		sleeping(philo);
 		thinking(philo);
 	}
-	exit(0);
+	pthread_join(philo->monitor, NULL);
+	exit_child(philo);
 }
 
 

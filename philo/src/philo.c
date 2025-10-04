@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:20:17 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/01 09:39:14 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/04 08:17:06 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,7 @@ int	main(int ac, char **av)
 		exit_program(&data, philos, "Error: Philosopher creation failed\n", 1);
 	if (start_philo(philos))
 		exit_program(&data, philos, "Error: Philosopher Starting failed\n", 1);
-	while (!data.stop)
-		monitor_philos(philos);
+	monitor_philos(philos);
 	if (end_philo(philos, data.num_of_philos))
 		exit_program(&data, philos, "Error: Philosopher Ending failed\n", 1);
 	exit_program(&data, philos, NULL, 0);

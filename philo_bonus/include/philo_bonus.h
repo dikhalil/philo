@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/25 12:01:10 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 18:43:58 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/04 11:43:46 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,11 @@ typedef struct s_data
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				num_of_meals;
-	long				start_time;
+	long			start_time;
 	int				stop;
-	sem_t	*forks;
-	sem_t	*print_lock;
-	sem_t	*eat;
+	sem_t			*forks;
+	sem_t			*print_lock;
+	sem_t			*eat;
 }					t_data;
 
 typedef struct s_philo
@@ -47,6 +47,7 @@ typedef struct s_philo
 	long			last_meal;
 	int exit_status;
 	struct s_data	*data;
+	struct s_philo	*philos;
 	pthread_mutex_t data_lock;
 	pthread_t		monitor;
 
@@ -74,7 +75,7 @@ int					end_philos(t_philo *philos, int philo_count);
 void				*monitor(void *arg);
 
 /*---------- routine ----------*/
-void				philo_routine(t_philo *philo);
+void	philo_routine(t_philo	*philo);
 
 /*---------- time ----------*/
 long				get_time_ms(void);
@@ -82,8 +83,8 @@ long				current_time_ms(t_data *data);
 void 				custom_usleep(t_philo *philo, long timemc);
 
 /*---------- exit ----------*/
-void 				free_data(t_data *data);
+void free_data(t_data *data, int is_parent);
 void				exit_program(t_data *data, t_philo *philos, char *msg,
 						int status);
-
+void exit_child(t_philo *philo);
 #endif

@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:26:32 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 17:31:42 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/04 09:49:46 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,9 @@ int	start_philo(t_philo *philos)
 	int	i;
 
 	i = 0;
-	pthread_mutex_lock(&philos[0].data->data_lock);
-	philos[0].data->start_time = get_time_ms();
-	while (i < philos[0].data->num_of_philos)
-		philos[i++].last_meal = philos[0].data->start_time;
-	pthread_mutex_unlock(&philos[0].data->data_lock);
+	philos->data->start_time = get_time_ms();
+	while (i < philos->data->num_of_philos)
+		philos[i++].last_meal = get_time_ms();
 	i = 0;
 	while (i < philos[0].data->num_of_philos)
 	{
@@ -59,25 +57,29 @@ void	monitor_philos(t_philo *philos)
 	int	i;
 
 	i = 0;
-	while (i < philos[0].data->num_of_philos)
+	while (1)
 	{
-		pthread_mutex_lock(&philos->data->data_lock);
-		if ((get_time_ms() - philos[i].last_meal) >= philos[0].data->time_to_die)
+		i = 0;
+		while (i < philos->data->num_of_philos)
 		{
-			philos[i].data->stop = 1;
+			pthread_mutex_lock(&philos->data->data_lock);
+			if ((get_time_ms() - philos[i].last_meal) > philos->data->time_to_die)
+			{
+				philos->data->stop = 1;
+				pthread_mutex_unlock(&philos->data->data_lock);
+				print_status(&philos[i], current_time_ms(philos->data), "died");
+				return ;
+			}
 			pthread_mutex_unlock(&philos->data->data_lock);
-			print_status(&philos[i], current_time_ms(philos->data), "died");
+			i++;
+		}
+		if (philos->data->num_of_meals != -1 && all_finished(philos))
+		{
+			pthread_mutex_lock(&philos->data->data_lock);
+			philos->data->stop = 1;
+			pthread_mutex_unlock(&philos->data->data_lock);
 			return ;
 		}
-		pthread_mutex_unlock(&philos->data->data_lock);
-		i++;
+		usleep(10);
 	}
-	if (philos[0].data->num_of_meals != -1 && all_finished(philos))
-	{
-		pthread_mutex_lock(&philos->data->data_lock);
-		philos[0].data->stop = 1;
-		pthread_mutex_unlock(&philos->data->data_lock);
-		return ;
-	}
-	usleep(100);
 }
