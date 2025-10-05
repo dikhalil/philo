@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:09:47 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/04 09:51:03 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/05 17:42:03 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,12 +53,21 @@ int	check_args(int ac, char **av)
 int	check_data(t_data *data, int flag)
 {
 	if (data->num_of_philos < 1)
+	{
+		free_data(data, data->num_of_philos, 1, 1);
 		return (1);
+	}
 	if (data->time_to_die < 0 || data->time_to_eat < 0
 		|| data->time_to_sleep < 0)
+	{
+		free_data(data, data->num_of_philos, 1, 1);
 		return (1);
+	}
 	if (data->num_of_meals <= -1 && flag)
+	{
+		free_data(data, data->num_of_philos, 1, 1);
 		return (1);
+	}
 	if (data->num_of_meals == 0)
 		exit_program(data, NULL, NULL, 0);
 	return (0);
@@ -83,16 +92,15 @@ int	all_finished(t_philo *philos)
 	return (1);
 }
 
-int is_simulation_stoped(t_philo *philo)
+int	is_simulation_stoped(t_philo *philo)
 {
-	int stopped;
-	int meals_finished;
+	int	stopped;
+	int	meals_finished;
 
 	pthread_mutex_lock(&philo->data->data_lock);
 	stopped = philo->data->stop;
-    meals_finished = (philo->data->num_of_meals != -1 && philo->meals_count > philo->data->num_of_meals);
+	meals_finished = (philo->data->num_of_meals != -1
+			&& philo->meals_count > philo->data->num_of_meals);
 	pthread_mutex_unlock(&philo->data->data_lock);
 	return (stopped || meals_finished);
 }
-
-

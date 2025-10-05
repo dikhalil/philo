@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:26:32 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/04 09:49:46 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/05 17:44:45 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,18 +52,30 @@ int	end_philo(t_philo *philos, int philo_count)
 	return (status);
 }
 
+static int	finish_meals(t_philo *philos)
+{
+	if (philos->data->num_of_meals != -1 && all_finished(philos))
+	{
+		pthread_mutex_lock(&philos->data->data_lock);
+		philos->data->stop = 1;
+		pthread_mutex_unlock(&philos->data->data_lock);
+		return (1);
+	}
+	return (0);
+}
+
 void	monitor_philos(t_philo *philos)
 {
 	int	i;
 
-	i = 0;
 	while (1)
 	{
 		i = 0;
 		while (i < philos->data->num_of_philos)
 		{
 			pthread_mutex_lock(&philos->data->data_lock);
-			if ((get_time_ms() - philos[i].last_meal) > philos->data->time_to_die)
+			if ((get_time_ms()
+					- philos[i].last_meal) > philos->data->time_to_die)
 			{
 				philos->data->stop = 1;
 				pthread_mutex_unlock(&philos->data->data_lock);
@@ -73,13 +85,8 @@ void	monitor_philos(t_philo *philos)
 			pthread_mutex_unlock(&philos->data->data_lock);
 			i++;
 		}
-		if (philos->data->num_of_meals != -1 && all_finished(philos))
-		{
-			pthread_mutex_lock(&philos->data->data_lock);
-			philos->data->stop = 1;
-			pthread_mutex_unlock(&philos->data->data_lock);
+		if (finish_meals(philos))
 			return ;
-		}
 		usleep(10);
 	}
 }

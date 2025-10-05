@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:12:26 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/09/28 20:35:19 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/05 17:30:17 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,6 @@ void	exit_program(t_data *data, t_philo *philos, char *msg, int status)
 	if (philos)
 		free(philos);
 	if (msg)
-		printf("%s\n", msg);
+		printf("%s", msg);
 	exit(status);
 }

@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:11:23 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/03 11:17:29 by dikhalil         ###   ########.fr       */
+/*   Updated: 2025/10/05 18:02:54 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,8 @@ int	init_data(int ac, char **av, t_data *data)
 		data->num_of_meals = -1;
 	data->start_time = 0;
 	data->stop = 0;
+	if (data->num_of_philos < 1)
+		return (1);
 	data->forks = malloc(sizeof(pthread_mutex_t) * data->num_of_philos);
 	if (!data->forks)
 		return (1);
@@ -85,5 +87,3 @@ int	create_philos(t_data *data, t_philo **philos)
 	}
 	return (0);
 }
-
-

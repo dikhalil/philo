@@ -91,8 +91,6 @@ void	print_status(t_philo *philo, long current_time_ms, char *status)
 {
 	pthread_mutex_lock(&philo->data->print_lock);
 	if (!is_simulation_stoped(philo) || !ft_strncmp("died", status, 4))
-	    printf("%ld %d %s\n", current_time_ms, philo->id, status);
+		printf("%ld %d %s\n", current_time_ms, philo->id, status);
 	pthread_mutex_unlock(&philo->data->print_lock);
-
 }
-

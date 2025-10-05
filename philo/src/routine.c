@@ -33,7 +33,6 @@ static void	take_fork(t_philo *philo)
 		pthread_mutex_lock(&philo->data->forks[philo->left_fork]);
 		print_status(philo, current_time_ms(philo->data), "has taken fork");
 	}
-
 }
 
 static void	eating(t_philo *philo)
@@ -77,7 +76,7 @@ void	*philo_routine(void *arg)
 	while (!is_simulation_stoped(philo))
 	{
 		if (philo->id % 2)
-			usleep (50);
+			usleep(50);
 		eating(philo);
 		sleeping(philo);
 		thinking(philo);

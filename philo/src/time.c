@@ -22,18 +22,17 @@ long	get_time_ms(void)
 
 long	current_time_ms(t_data *data)
 {
-	long ct;
-	
+	long	ct;
+
 	ct = get_time_ms() - data->start_time;
 	return (ct);
 }
 
-void custom_usleep(t_philo *philo, long timems)
+void	custom_usleep(t_philo *philo, long timems)
 {
-	long start;
-	
+	long	start;
+
 	start = get_time_ms();
 	while (!is_simulation_stoped(philo) && ((get_time_ms() - start) < timems))
 		usleep(100);
 }
-
