@@ -46,7 +46,7 @@ static void	eating(t_philo *philo)
 		return ;
 	}
 	take_fork(philo);
-	if (is_simulation_stoped(philo))
+	if (is_simulation_stopped(philo))
 	{
 		pthread_mutex_unlock(&philo->data->forks[philo->right_fork]);
 		pthread_mutex_unlock(&philo->data->forks[philo->left_fork]);
@@ -73,7 +73,7 @@ void	*philo_routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	while (!is_simulation_stoped(philo))
+	while (!is_simulation_stopped(philo))
 	{
 		if (philo->id % 2)
 			usleep(50);

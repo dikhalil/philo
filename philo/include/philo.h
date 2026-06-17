@@ -57,7 +57,7 @@ void				print_status(t_philo *philo, long current_time_ms,
 int					check_args(int ac, char **av);
 int					check_data(t_data *data, int flag);
 int					all_finished(t_philo *philos);
-int					is_simulation_stoped(t_philo *philo);
+int					is_simulation_stopped(t_philo *philo);
 
 /*---------- initialize ----------*/
 int					init_mutex(t_data *data);

@@ -33,6 +33,6 @@ void	custom_usleep(t_philo *philo, long timems)
 	long	start;
 
 	start = get_time_ms();
-	while (!is_simulation_stoped(philo) && ((get_time_ms() - start) < timems))
+	while (!is_simulation_stopped(philo) && ((get_time_ms() - start) < timems))
 		usleep(100);
 }

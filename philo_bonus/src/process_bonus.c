@@ -6,7 +6,7 @@
 /*   By: dikhalil <dikhalil@student.42amman.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/28 19:26:32 by dikhalil          #+#    #+#             */
-/*   Updated: 2025/10/04 14:10:53 by dikhalil         ###   ########.fr       */
+/*   Updated: 2026/06/17 23:12:50 by dikhalil         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,7 @@ int	end_philos(t_philo *philos, int philo_count)
 	{
 		if (waitpid(philos[i].pid, NULL, WNOHANG) == 0)
 		{
-			free_data(philos[i].data, 0);
-			kill(philos[i].pid, SIGKILL);
+			kill(philos[i].pid, SIGTERM);
 			waitpid(philos[i].pid, NULL, 0);
 		}
 		else
@@ -34,6 +33,7 @@ int	end_philos(t_philo *philos, int philo_count)
 		pthread_mutex_destroy(&philos[i].data_lock);
 		i++;
 	}
+	free_data(philos->data, 0);
 	return (status);
 }
 
@@ -107,7 +107,7 @@ void	*monitor(void *arg)
 			sem_post(philo->data->print_lock);
 			break ;
 		}
-		if (philo->data->num_of_meals != -1 && philo->meals_count > philo->data->num_of_meals)
+		if (philo->data->num_of_meals != -1 && philo->meals_count >= philo->data->num_of_meals)
 		{
 			philo->exit_status = 0;
 			pthread_mutex_unlock(&philo->data_lock);

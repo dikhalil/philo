@@ -76,11 +76,8 @@ int	create_philos(t_data *data, t_philo **philos)
 		(*philos)[i].data = data;
 		(*philos)[i].exit_status = -1;
 		(*philos)[i].philos = *philos;
-		if(pthread_mutex_init(&(*philos)[i].data_lock, NULL))
-		{
-			pthread_mutex_destroy(&(*philos)[i].data_lock);
+		if (pthread_mutex_init(&(*philos)[i].data_lock, NULL))
 			return (1);
-		}
 		i++;
 	}
 	return (0);

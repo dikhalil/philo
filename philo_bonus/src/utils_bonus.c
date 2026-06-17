@@ -90,7 +90,7 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 void	print_status(t_philo *philo, long current_time_ms, char *status)
 {
 	sem_wait(philo->data->print_lock);
-	if (!is_simulation_stoped(philo))
+	if (!is_simulation_stopped(philo))
 	    printf("%ld %d %s\n", current_time_ms, philo->id, status);
 	sem_post(philo->data->print_lock);
 }

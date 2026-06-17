@@ -53,21 +53,12 @@ int	check_args(int ac, char **av)
 int	check_data(t_data *data, int flag)
 {
 	if (data->num_of_philos < 1)
-	{
-		free_data(data, data->num_of_philos, 1, 1);
 		return (1);
-	}
-	if (data->time_to_die < 0 || data->time_to_eat < 0
-		|| data->time_to_sleep < 0)
-	{
-		free_data(data, data->num_of_philos, 1, 1);
+	if (data->time_to_die <= 0 || data->time_to_eat <= 0
+		|| data->time_to_sleep <= 0)
 		return (1);
-	}
-	if (data->num_of_meals <= -1 && flag)
-	{
-		free_data(data, data->num_of_philos, 1, 1);
+	if (data->num_of_meals < 0 && flag)
 		return (1);
-	}
 	if (data->num_of_meals == 0)
 		exit_program(data, NULL, NULL, 0);
 	return (0);
@@ -92,7 +83,7 @@ int	all_finished(t_philo *philos)
 	return (1);
 }
 
-int	is_simulation_stoped(t_philo *philo)
+int	is_simulation_stopped(t_philo *philo)
 {
 	int	stopped;
 	int	meals_finished;
@@ -100,7 +91,7 @@ int	is_simulation_stoped(t_philo *philo)
 	pthread_mutex_lock(&philo->data->data_lock);
 	stopped = philo->data->stop;
 	meals_finished = (philo->data->num_of_meals != -1
-			&& philo->meals_count > philo->data->num_of_meals);
+			&& philo->meals_count >= philo->data->num_of_meals);
 	pthread_mutex_unlock(&philo->data->data_lock);
 	return (stopped || meals_finished);
 }

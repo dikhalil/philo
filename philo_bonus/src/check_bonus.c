@@ -54,24 +54,24 @@ int	check_data(t_data *data, int flag)
 {
 	if (data->num_of_philos < 1)
 		return (1);
-	if (data->time_to_die < 0 || data->time_to_eat < 0
-		|| data->time_to_sleep < 0)
+	if (data->time_to_die <= 0 || data->time_to_eat <= 0
+		|| data->time_to_sleep <= 0)
 		return (1);
-	if (data->num_of_meals <= -1 && flag)
+	if (data->num_of_meals < 0 && flag)
 		return (1);
 	if (data->num_of_meals == 0)
 		exit_program(data, NULL, NULL, 0);
 	return (0);
 }
 
-int is_simulation_stoped(t_philo *philo)
+int is_simulation_stopped(t_philo *philo)
 {
 	int stopped;
 	int meals_finished;
 
     pthread_mutex_lock(&philo->data_lock);
     stopped = philo->data->stop;
-    meals_finished = (philo->data->num_of_meals != -1 && philo->meals_count > philo->data->num_of_meals);
+    meals_finished = (philo->data->num_of_meals != -1 && philo->meals_count >= philo->data->num_of_meals);
 	if (meals_finished)
 		philo->exit_status = 0;
     pthread_mutex_unlock(&philo->data_lock);

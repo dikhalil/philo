@@ -56,7 +56,7 @@ typedef struct s_philo
 /*---------- check ----------*/
 int					check_args(int ac, char **av);
 int					check_data(t_data *data, int flag);
-int 				is_simulation_stoped(t_philo *philo);
+int 				is_simulation_stopped(t_philo *philo);
 
 /*---------- utils ----------*/
 int					ft_strncmp(const char *s1, const char *s2, size_t n);
