@@ -1,110 +1,128 @@
 # Philosophers
 
-> 42 School project — solving the Dining Philosophers Problem with threads/mutexes and processes/semaphores.
 
-## The Problem
+<p align="center">
+  <i>Dining Philosophers Problem — 42 Network</i>
+</p>
 
-N philosophers sit at a round table with a bowl of spaghetti. Each philosopher alternates between **eating**, **thinking**, and **sleeping**. There are N forks — one between each pair of philosophers. A philosopher needs **two forks** to eat. The challenge is to prevent deadlock (everyone holding one fork and waiting) and starvation (a philosopher never gets to eat) while ensuring no philosopher starves to death.
+## Overview
+
+The classic synchronization problem solved in C using **threads and mutexes** (mandatory) and **processes and semaphores** (bonus). The goal is to prevent deadlock and starvation while ensuring every philosopher gets to eat.
 
 ## Project Structure
 
 ```
-├── philo/          # Mandatory part: threads + mutexes
-│   ├── include/    # Header files
-│   ├── src/        # Source files
-│   └── Makefile
-├── philo_bonus/    # Bonus part: processes + semaphores
-│   ├── include/
+├── philo/              # Mandatory — threads + mutexes
+│   ├── include/philo.h
 │   ├── src/
+│   │   ├── philo.c        # Entry point
+│   │   ├── check.c        # Argument validation
+│   │   ├── init.c         # Data and mutex initialization
+│   │   ├── threads.c      # Thread creation, joining, monitoring
+│   │   ├── routine.c      # Philosopher lifecycle (eat/sleep/think)
+│   │   ├── time.c         # Timestamp utilities
+│   │   ├── utils.c        # Parsing and logging
+│   │   └── exit.c         # Cleanup and error handling
 │   └── Makefile
+│
+├── philo_bonus/         # Bonus — processes + semaphores
+│   ├── include/philo_bonus.h
+│   ├── src/
+│   │   ├── philo_bonus.c
+│   │   ├── check_bonus.c
+│   │   ├── init_bonus.c
+│   │   ├── process_bonus.c # Fork, process management, per-child monitoring
+│   │   ├── routine_bonus.c
+│   │   ├── time_bonus.c
+│   │   ├── utils_bonus.c
+│   │   └── exit_bonus.c
+│   └── Makefile
+│
 └── README.md
 ```
 
-## Compilation
+## Build
 
 ```bash
 # Mandatory
-cd philo && make
+make -C philo
 
 # Bonus
-cd philo_bonus && make
+make -C philo_bonus
 
 # Clean build
-make re
+make -C philo re
+make -C philo_bonus re
 
-# Clean objects
-make clean
-
-# Full clean (objects + binary)
-make fclean
+# Clean artifacts
+make -C philo fclean
+make -C philo_bonus fclean
 ```
 
 ## Usage
 
 ```
-./philo <number_of_philosophers> <time_to_die> <time_to_eat> <time_to_sleep> [number_of_meals]
+./philo <number> <time_to_die> <time_to_eat> <time_to_sleep> [meals_count]
 ```
 
-| Argument | Description |
-|----------|-------------|
-| `number_of_philosophers` | Number of philosophers (and forks) |
-| `time_to_die` | Time in ms before a philosopher dies from starvation |
-| `time_to_eat` | Time in ms a philosopher spends eating |
-| `time_to_sleep` | Time in ms a philosopher spends sleeping |
-| `number_of_meals` | Optional: stop after each philosopher eats this many times |
+All time values are in milliseconds.
 
-### Examples
+| Argument | Description |
+|---|---|
+| `number` | Number of philosophers and forks |
+| `time_to_die` | Max ms without eating before death |
+| `time_to_eat` | Time spent eating (holds 2 forks) |
+| `time_to_sleep` | Time spent sleeping |
+| `meals_count` | Optional — simulation ends when each philosopher eats this many |
+
+## Examples
 
 ```bash
-# 1 philosopher dies after 800ms (can't eat with 1 fork)
+# Single philosopher — can't get second fork, dies
 ./philo 1 800 200 200
 
-# 5 philosophers survive indefinitely
+# 5 philosophers with ample time — runs indefinitely
 ./philo 5 800 200 200
 
-# 5 philosophers, each eats at least 7 times then stops
+# 5 philosophers, each eats 7 times then stops
 ./philo 5 800 200 200 7
 
-# 4 philosophers with tight timing — someone dies
+# Tight timing — a philosopher eventually starves
 ./philo 4 310 200 100
 ```
 
-## Output Format
+## Output
 
 ```
-<timestamp_ms> <philosopher_id> <action>
+<timestamp_ms> <id> <action>
 ```
 
 Actions: `has taken fork`, `is eating`, `is sleeping`, `is thinking`, `died`
 
-## Implementation
+The death message is printed exactly once and is immediately followed by program termination.
+
+## Implementation Details
 
 ### Mandatory (`philo/`)
 
-- Each philosopher runs in a **separate thread**
-- **Mutexes** protect each fork from concurrent access
-- A **monitor thread** periodically checks if any philosopher has exceeded `time_to_die` since their last meal
-- Even-numbered philosophers start with a slight delay (`usleep(50)`) to prevent deadlock
-- Mutexes for `print_lock` and `data_lock` ensure race-free logging and state access
+| Component | Approach |
+|---|---|
+| Concurrency | 1 thread per philosopher |
+| Fork protection | 1 mutex per fork |
+| State protection | `data_lock` mutex guards `stop`, `meals_count`, `last_meal` |
+| Logging | `print_lock` mutex ensures atomic output |
+| Deadlock prevention | Even IDs pick right fork first; odd IDs pick left fork first |
+| Monitor | Main thread polls all philosophers; kills simulation on death |
+| Meal limit | Optional 6th argument; monitor stops simulation when all have eaten enough |
 
 ### Bonus (`philo_bonus/`)
 
-- Each philosopher runs in a **separate process** (via `fork`)
-- **Named semaphores** replace mutexes for fork management and synchronization
-- Each child process spawns a **monitor thread** to detect death or meal completion
-- An `eat` semaphore limits concurrent eaters to `N / 2` as a deadlock prevention strategy
-- The parent process waits for children using `waitpid` and handles cleanup
-
-## Known Issues
-
-### Bonus Part
-
-The bonus implementation is **not fully correct** and has the following known issues:
-
-1. **Semaphore double-close** (`process_bonus.c:end_philos`): `free_data` is called for each philosopher in a loop, but all share the same `t_data` pointer, causing `sem_close` to be called multiple times on the same semaphore — undefined behavior.
-
-2. **Semaphore leak race** (`routine_bonus.c:eating`): If the monitor signals simulation stop between the fork-acquisition check and the stop check in `eating`, the acquired semaphores (forks and eat) are never released, eventually blocking all philosophers.
-
-3. **Mutex destroy on failed init** (`init_bonus.c:create_philos`): `pthread_mutex_destroy` is called on a mutex whose `pthread_mutex_init` has just failed — undefined behavior.
-
-4. **Signal harshness** (`process_bonus.c:end_philos`): Uses `SIGKILL` instead of `SIGTERM`, preventing child processes from performing any cleanup.
+| Component | Approach |
+|---|---|
+| Concurrency | 1 process per philosopher |
+| Fork protection | Named semaphore (`/forks`) with N permits |
+| Eater limit | Named semaphore (`/eat`) with N/2 permits prevents deadlock |
+| Logging | Named semaphore (`/print`) ensures atomic output |
+| Monitor | 1 thread per child process checks death/meal completion |
+| Cleanup | Parent waits via `waitpid`; children exit with status 0 (full) or 1 (death) |
+| Shared state | `t_data` is shared across processes via `sem_open` named semaphores |
